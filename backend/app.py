@@ -34,7 +34,7 @@ def get_current_user_id():
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Yashana@ahaar212",
+    password="",
     database="ahaar"
 )
 
