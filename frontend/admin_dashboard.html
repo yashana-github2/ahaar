@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Aahaar</title>
+<style>
+body { font-family: 'Poppins', sans-serif; background: #faf7e8; color: #333; padding: 20px; }
+h2 { color: #8b61c0; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+th, td { padding: 12px 10px; text-align: center; }
+th { background-color: #8b61c0; color: #fff; }
+tr:nth-child(even) { background-color: #f5f0f8; }
+tr:hover { background-color: #e0d6f3; }
+</style>
+</head>
+<body>
+<h2>Admin Dashboard</h2>
+<table>
+<thead>
+<tr>
+<th>Order ID</th>
+<th>Restaurant</th>
+<th>User</th>
+<th>Total</th>
+<th>Order Status</th>
+<th>Payment Status</th>
+</tr>
+</thead>
+<tbody id="adminOrders">
+<tr><td colspan="6">No orders yet.</td></tr>
+</tbody>
+</table>
+
+<script>
+const apiBase = "http://127.0.0.1:5000";
+
+async function loadAllOrders() {
+    const res = await fetch(`${apiBase}/admin/orders`);
+    const orders = await res.json();
+
+    const tbody = document.getElementById("adminOrders");
+    tbody.innerHTML = "";
+
+    if (!orders.length) {
+        tbody.innerHTML = '<tr><td colspan="6">No orders yet.</td></tr>';
+        return;
+    }
+
+    orders.forEach(o => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${o.order_id}</td>
+            <td>${o.restaurant_name}</td>
+            <td>${o.user_name}</td>
+            <td>₹${o.total_amount}</td>
+            <td>${o.order_status}</td>
+            <td>${o.payment_status}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+loadAllOrders();
+setInterval(loadAllOrders, 5000);
+</script>
+</body>
+</html>
