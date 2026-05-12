@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Aahaar | Payment</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+font-family:Poppins,sans-serif;
+background:#f5f5f7;
+margin:0;
+}
+
+header{
+background:#8b61c0;
+color:white;
+padding:18px;
+font-weight:600;
+}
+
+.container{
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:16px;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);
+margin-bottom:18px;
+}
+
+.amount{
+font-size:28px;
+font-weight:700;
+margin-top:6px;
+}
+
+.payment-option{
+display:flex;
+align-items:center;
+margin:12px 0;
+}
+
+.payment-option input{
+margin-right:10px;
+}
+
+.pay-btn{
+width:100%;
+background:#8b61c0;
+color:white;
+border:none;
+padding:14px;
+font-size:16px;
+border-radius:12px;
+font-weight:600;
+cursor:pointer;
+}
+
+.pay-btn:disabled{
+opacity:0.7;
+cursor:not-allowed;
+}
+
+.success{
+text-align:center;
+font-size:20px;
+color:green;
+margin-top:40px;
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>Payment</header>
+
+<div class="container">
+
+<div class="card">
+<div>Amount to Pay</div>
+<div class="amount">₹<span id="amount"></span></div>
+</div>
+
+<div class="card">
+<h3>Select Payment Method</h3>
+
+<div class="payment-option">
+<input type="radio" name="method" value="UPI" checked>
+UPI
+</div>
+
+<div class="payment-option">
+<input type="radio" name="method" value="Card">
+Credit / Debit Card
+</div>
+
+<div class="payment-option">
+<input type="radio" name="method" value="COD">
+Cash on Delivery
+</div>
+</div>
+
+<button class="pay-btn" id="completePaymentBtn" onclick="payNow()">
+Complete Payment
+</button>
+
+<div class="success" id="successMsg">
+✅ Payment Successful
+</div>
+
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:5000";
+
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("order_id");
+const amount = params.get("amount");
+
+document.getElementById("amount").innerText = amount || "0";
+
+async function payNow() {
+  const btn = document.getElementById("completePaymentBtn");
+  const successMsg = document.getElementById("successMsg");
+
+  if (!orderId) {
+    alert("Order ID missing");
+    return;
+  }
+
+  const selected = document.querySelector('input[name="method"]:checked');
+  const method = selected ? selected.value : "UPI";
+
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(API_BASE + "/payment/" + orderId + "/complete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        method: method
+      })
+    });
+
+    if (!res.ok) {
+      alert("Payment failed");
+      btn.disabled = false;
+      return;
+    }
+
+    successMsg.style.display = "block";
+
+    setTimeout(() => {
+      window.location.href = "tracking.html?order_id=" + orderId;
+    }, 1500);
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error during payment");
+    btn.disabled = false;
+  }
+}
+
+/* ---------- VOICE ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    console.log("Speech recognition not supported");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  let speaking = false;
+  let voiceMode = true;
+  let voices = [];
+  let lastCommand = "";
+  let lastCommandTime = 0;
+
+  function loadVoices() {
+    voices = speechSynthesis.getVoices();
+  }
+
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function speak(text) {
+    console.log("Aahaar says:", text);
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-IN";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    if (voices.length > 0) {
+      utterance.voice =
+        voices.find(v => v.lang && v.lang.toLowerCase().includes("en-in")) ||
+        voices.find(v => v.lang && v.lang.toLowerCase().includes("en")) ||
+        voices[0];
+    }
+
+    speaking = true;
+
+    try { recognition.stop(); } catch (e) {}
+
+    utterance.onend = () => {
+      speaking = false;
+      setTimeout(() => {
+        try { recognition.start(); } catch (e) {}
+      }, 400);
+    };
+
+    speechSynthesis.speak(utterance);
+  }
+
+  function isDuplicate(command) {
+    const now = Date.now();
+    if (command === lastCommand && now - lastCommandTime < 1800) {
+      return true;
+    }
+    lastCommand = command;
+    lastCommandTime = now;
+    return false;
+  }
+
+  function getSelectedMethodInput() {
+    return document.querySelector('input[name="method"]:checked');
+  }
+
+  function getSelectedMethodText() {
+    const selected = getSelectedMethodInput();
+    if (!selected) return "no payment method selected";
+
+    if (selected.value === "UPI") return "UPI";
+    if (selected.value === "Card") return "card";
+    if (selected.value === "COD") return "cash on delivery";
+
+    return selected.value;
+  }
+
+  function selectMethod(method) {
+    const options = Array.from(document.querySelectorAll('input[name="method"]'));
+    let target = null;
+
+    if (method === "upi") {
+      target = options.find(opt => opt.value === "UPI");
+    } else if (method === "card") {
+      target = options.find(opt => opt.value === "Card");
+    } else if (method === "cod") {
+      target = options.find(opt => opt.value === "COD");
+    }
+
+    if (!target) {
+      speak("That payment method is not available.");
+      return;
+    }
+
+    target.checked = true;
+
+    if (method === "upi") speak("UPI selected.");
+    if (method === "card") speak("Card selected.");
+    if (method === "cod") speak("Cash on delivery selected.");
+  }
+
+  function readAmount() {
+    const payableAmount =
+      document.getElementById("amount")?.innerText?.trim() || "0";
+
+    speak("Your payable amount is rupees " + payableAmount + ".");
+  }
+
+  function readPaymentMethods() {
+    speak("Available payment methods are UPI, card, and cash on delivery.");
+  }
+
+  function completePaymentByVoice() {
+    const btn = document.getElementById("completePaymentBtn");
+    if (!btn) {
+      speak("Complete payment button not found.");
+      return;
+    }
+
+    const selectedMethod = getSelectedMethodText();
+    speak("Completing payment with " + selectedMethod + ".");
+    setTimeout(() => btn.click(), 1000);
+  }
+
+  function handleVoice(rawTranscript) {
+    if (speaking || !voiceMode) return;
+
+    const transcript = normalize(rawTranscript);
+    if (!transcript) return;
+    if (isDuplicate(transcript)) return;
+
+    console.log("User said:", transcript);
+
+    if (
+      transcript.includes("read amount") ||
+      transcript.includes("amount to pay") ||
+      transcript.includes("payable amount") ||
+      transcript.includes("read total")
+    ) {
+      readAmount();
+      return;
+    }
+
+    if (
+      transcript.includes("read payment methods") ||
+      transcript.includes("payment options") ||
+      transcript.includes("which payment methods") ||
+      transcript.includes("available payment methods")
+    ) {
+      readPaymentMethods();
+      return;
+    }
+
+    if (transcript === "upi" || transcript.includes("upi")) {
+      selectMethod("upi");
+      return;
+    }
+
+    if (transcript === "card" || transcript.includes("card")) {
+      selectMethod("card");
+      return;
+    }
+
+    if (
+      transcript === "cod" ||
+      transcript.includes("cash on delivery")
+    ) {
+      selectMethod("cod");
+      return;
+    }
+
+    if (
+      transcript.includes("which payment is selected") ||
+      transcript.includes("selected payment") ||
+      transcript.includes("current payment method")
+    ) {
+      speak("Current payment method is " + getSelectedMethodText() + ".");
+      return;
+    }
+
+    if (
+      transcript.includes("complete payment") ||
+      transcript.includes("pay now") ||
+      transcript.includes("proceed payment") ||
+      transcript.includes("confirm payment")
+    ) {
+      completePaymentByVoice();
+      return;
+    }
+
+    if (
+      transcript.includes("go back") ||
+      transcript === "back"
+    ) {
+      speak("Going back.");
+      setTimeout(() => history.back(), 900);
+      return;
+    }
+
+    speak("Please say read amount, read payment methods, UPI, card, cash on delivery, or complete payment.");
+  }
+
+  recognition.onresult = (event) => {
+    const result = event.results[event.results.length - 1];
+    if (!result.isFinal) return;
+
+    const transcript = result[0].transcript;
+    handleVoice(transcript);
+  };
+
+  recognition.onerror = () => {
+    if (!speaking) {
+      setTimeout(() => {
+        try { recognition.start(); } catch (e) {}
+      }, 800);
+    }
+  };
+
+  recognition.onend = () => {
+    if (!speaking) {
+      setTimeout(() => {
+        try { recognition.start(); } catch (e) {}
+      }, 800);
+    }
+  };
+
+  setTimeout(() => {
+    try { recognition.start(); } catch (e) {}
+  }, 800);
+
+  setTimeout(() => {
+    const payableAmount =
+      document.getElementById("amount")?.innerText?.trim() || "0";
+
+    speak(
+      "You are on payment page. Amount to pay is rupees " +
+      payableAmount +
+      ". You can say read payment methods, UPI, card, cash on delivery, or complete payment."
+    );
+  }, 1400);
+});
+</script>
+
+</body>
+</html>

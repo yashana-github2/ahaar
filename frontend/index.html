@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aahaar</title>
+
+<!-- GOOGLE FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary: #744ea8;
+        --secondary: #3d2f52;
+        --white: #ffffff;
+        --black: #111111;
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background: var(--white);
+        overflow-x: hidden;
+    }
+
+    /* ------------------ LOADER ------------------ */
+    #loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+    }
+
+    .plate {
+        width: 90px;
+        height: 90px;
+        border: 6px solid var(--primary);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 1.3s infinite cubic-bezier(0.6, 0.2, 0.4, 1);
+        position: relative;
+    }
+
+    .inner-circle {
+        width: 30px;
+        height: 30px;
+        background: var(--secondary);
+        border-radius: 50%;
+        position: absolute;
+        top: 30%;
+        left: 30%;
+    }
+
+    .loader-text {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none; }
+
+    /* ------------------ NAVBAR ------------------ */
+    nav {
+        width: 100%;
+        padding: 20px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+
+    nav .logo {
+        font-size: 50px;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: -1px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ------------------ HERO SECTION ------------------ */
+    .hero {
+        height: 100vh;
+        padding: 0 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #fff 0%, #f7f4ff 100%);
+        position: relative;
+    }
+
+    .hero-text {
+        max-width: 500px;
+        animation: fadeIn 1.2s ease forwards;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+        font-weight: 700;
+        color: var(--black);
+        margin-bottom: 20px;
+        line-height: 1.15;
+    }
+
+    .hero h1 span {
+        color: var(--primary);
+    }
+
+    .hero p {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+
+    /* CTA BUTTON */
+    .btn-primary {
+        background: var(--primary);
+        padding: 14px 34px;
+        font-size: 17px;
+        font-weight: 600;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.25s ease;
+    }
+
+    .btn-primary:hover {
+        background: #5d3c8c;
+        transform: translateY(-3px);
+    }
+
+    /* Image Circle */
+    .hero-art {
+        width: 480px;
+        height: 480px;
+        border-radius: 50%;
+        background: radial-gradient(circle at top right, var(--primary), var(--secondary));
+        animation: scaleIn 1.4s ease forwards;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .hero-art img {
+        width: 280px;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.6); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-14px); }
+        100% { transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .hero {
+            flex-direction: column;
+            text-align: center;
+            padding-top: 120px;
+        }
+        .hero-art {
+            width: 320px;
+            height: 320px;
+            margin-top: 30px;
+        }
+        .hero h1 { font-size: 34px; }
+    }
+</style>
+
+</head>
+
+
+<body>
+
+<!-- ------------------ LOADER ------------------ -->
+<div id="loader">
+    <div class="plate">
+        <div class="inner-circle"></div>
+    </div>
+    <p class="loader-text">Aahaar</p>
+</div>
+
+<!-- ------------------ MAIN CONTENT ------------------ -->
+<div id="main-content" class="hidden">
+
+<nav>
+    <div class="logo">Aahaar</div>
+</nav>
+
+<section class="hero">
+
+    <div class="hero-text">
+        <h1>Order Food with <span>Voice</span>.<br>Fast. Simple. Accessible.</h1>
+        <p>India’s first voice-enabled food ordering experience designed for blind and visually impaired users—powered by AI for seamless, hands-free ordering.</p>
+
+        <button class="btn-primary" onclick="location.href='register.html'">Get Started</button>
+    </div>
+
+    <div class="hero-art">
+        <img src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" alt="Food Icon">
+    </div>
+
+</section>
+
+</div>
+
+<!-- ------------------ JS ------------------ -->
+<script>
+
+    
+window.addEventListener("load", () => {
+    // Smooth fade-out
+    setTimeout(() => {
+        document.getElementById("loader").style.opacity = "0";
+
+        setTimeout(() => {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("main-content").classList.remove("hidden");
+        }, 450);
+        
+    }, 900);
+});
+
+sessionStorage.removeItem("ahaarVoiceMode");
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = true;
+  recognition.interimResults = false;
+
+  function speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-IN";
+    utterance.rate = 1;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }
+
+  recognition.onresult = (event) => {
+
+    const transcript = event.results[event.results.length - 1][0].transcript
+      .toLowerCase()
+      .trim();
+
+    console.log("User said:", transcript);
+
+    if (
+      transcript.includes("hey") ||
+      transcript.includes("hi") ||
+      transcript.includes("hello")
+    ) {
+
+      console.log("Voice mode activated");
+
+      // store voice mode
+      sessionStorage.setItem("ahaarVoiceMode", "on");
+
+      speak("Welcome to Ahaar");
+
+      setTimeout(() => {
+        window.location.href = "register.html";
+      }, 1200);
+    }
+  };
+
+  recognition.onerror = () => recognition.start();
+
+  recognition.start();
+
+} else {
+  console.log("SpeechRecognition not supported in this browser.");
+}
+</script>
+</body>
+</html>

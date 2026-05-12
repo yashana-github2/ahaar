@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aahaar - Enter OTP</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #faf7e8;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .otp-box {
+        width: 330px;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #8b61c0;
+    }
+
+    input {
+        width: 100%;
+        margin-top: 5px;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+        text-align: center;
+        letter-spacing: 4px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 12px;
+        background: #8b61c0;
+        color: white;
+        border: none;
+        font-size: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #6d45a2;
+    }
+
+    #voiceTip {
+        text-align: center;
+        margin-top: 10px;
+        color: #8b61c0;
+        font-size: 14px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="otp-box">
+    <h2>Enter OTP</h2>
+
+    <input type="number" id="otpInput" placeholder="----">
+
+    <button id="verifyOtpBtn">Verify OTP</button>
+
+    <p id="voiceTip">Say **Hey Aahaar** to enter OTP by voice</p>
+</div>
+
+<script src="otp.js"></script>
+
+</body>
+</html>

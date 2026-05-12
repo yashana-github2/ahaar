@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aahaar | Cart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: #faf7e8;
+}
+
+header {
+    background: #8b61c0;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.container {
+    padding: 20px;
+}
+
+.cart-item {
+    background: white;
+    padding: 16px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-controls button {
+    background: #8b61c0;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.bill-box {
+    background: white;
+    padding: 18px;
+    border-radius: 14px;
+    margin-top: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.bill-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: #8b61c0;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Your Cart</h2>
+    <button onclick="goBack()" style="background:white;color:#8b61c0;border:none;padding:8px 14px;border-radius:20px;">
+        Back
+    </button>
+</header>
+
+<div class="container">
+
+    <div id="cartItems"></div>
+
+    <div id="billSection" class="bill-box" style="display:none;">
+        <div class="bill-row">
+            <span>Item Total</span>
+            <span id="itemTotal">₹0</span>
+        </div>
+        <div class="bill-row">
+            <span>Delivery Fee</span>
+            <span>₹30</span>
+        </div>
+        <div class="bill-row">
+            <span>Platform Fee</span>
+            <span>₹5</span>
+        </div>
+        <div class="bill-row">
+            <span>GST (5%)</span>
+            <span id="gstAmount">₹0</span>
+        </div>
+        <div class="bill-row">
+            <strong>Grand Total</strong>
+            <strong id="grandTotal">₹0</strong>
+        </div>
+
+        <button class="checkout-btn" onclick="checkout()">
+            Proceed to Checkout
+        </button>
+    </div>
+
+</div>
+
+<script src="assets/js/cart.js"></script>
+
+</body>
+</html>

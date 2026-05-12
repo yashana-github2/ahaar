@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aahaar | Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+font-family:Poppins,sans-serif;
+background:#faf7e8;
+padding:20px;
+}
+
+h2{
+color:#8b61c0;
+margin-bottom:20px;
+}
+
+.status-box{
+background:white;
+padding:18px;
+border-radius:12px;
+margin-bottom:16px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+.status-label{
+font-weight:600;
+margin-bottom:6px;
+}
+
+.status-value{
+font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Order Tracking</h2>
+
+<div class="status-box">
+<div class="status-label">Order ID:</div>
+<div class="status-value" id="orderId">-</div>
+</div>
+
+<div class="status-box">
+<div class="status-label">Order Status:</div>
+<div class="status-value" id="orderStatus">Placed</div>
+</div>
+
+<div class="status-box">
+<div class="status-label">Payment Status:</div>
+<div class="status-value" id="paymentStatus">Pending</div>
+</div>
+
+<div class="status-box">
+<div class="status-label">Delivery Partner:</div>
+<div class="status-value" id="deliveryPartner">Not assigned</div>
+</div>
+
+<div class="status-box">
+<div class="status-label">Delivery Status:</div>
+<div class="status-value" id="deliveryStatus">-</div>
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:5000";
+
+const params = new URLSearchParams(window.location.search);
+let orderId = params.get("order_id");
+
+document.getElementById("orderId").innerText = orderId || "-";
+
+/* ---------- VOICE ---------- */
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
+let speaking = false;
+let voices = [];
+
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-IN";
+  recognition.continuous = true;
+  recognition.interimResults = false;
+}
+
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speak(text){
+  console.log("Aahaar says:", text);
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-IN";
+
+  if(voices.length>0){
+    utterance.voice =
+      voices.find(v=>v.lang.includes("en-IN")) ||
+      voices.find(v=>v.lang.includes("en")) ||
+      voices[0];
+  }
+
+  speaking = true;
+
+  try{ recognition && recognition.stop(); }catch(e){}
+
+  utterance.onend = ()=>{
+    speaking=false;
+    setTimeout(()=>{ try{ recognition && recognition.start(); }catch(e){} },400);
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+/* ---------- STATUS LOGIC ---------- */
+
+let lastStatus = "";
+
+async function fetchOrderStatus(){
+  if(!orderId) return;
+
+  try{
+    const res = await fetch(`${API_BASE}/order/${orderId}`);
+    const order = await res.json();
+
+    const orderStatus = order.order_status || "Placed";
+    const paymentStatus = order.payment_status || "Pending";
+
+    document.getElementById("orderStatus").innerText = orderStatus;
+    document.getElementById("paymentStatus").innerText = paymentStatus;
+
+    let deliveryText = "Not assigned";
+    let deliveryStatus = "-";
+
+    if(order.delivery_assignment){
+      deliveryText = "Partner " + order.delivery_assignment.partner_id;
+      deliveryStatus = order.delivery_assignment.delivery_status;
+    }
+
+    document.getElementById("deliveryPartner").innerText = deliveryText;
+    document.getElementById("deliveryStatus").innerText = deliveryStatus;
+
+    const combinedStatus =
+      orderStatus + "|" + paymentStatus + "|" + deliveryStatus;
+
+    /* 🔊 SPEAK ONLY WHEN STATUS CHANGES */
+    if(combinedStatus !== lastStatus){
+      lastStatus = combinedStatus;
+
+      if(orderStatus === "Pending"){
+        speak("Your order has been placed.");
+      }
+
+      if(orderStatus === "Accepted"){
+        speak("Restaurant has accepted your order.");
+      }
+
+      if(orderStatus === "Preparing"){
+        speak("Your food is being prepared.");
+      }
+
+      if(orderStatus === "Ready"){
+        speak("Your order is ready for pickup.");
+      }
+
+      if(deliveryStatus === "Assigned"){
+        speak("Delivery partner has been assigned.");
+      }
+
+      if(deliveryStatus === "Picked"){
+        speak("Your order has been picked up.");
+      }
+
+      if(deliveryStatus === "On the way"){
+        speak("Your order is on the way.");
+      }
+
+      if(deliveryStatus === "Delivered"){
+        speak("Order delivered. Enjoy your meal!");
+      }
+    }
+
+  }catch(err){
+    console.log(err);
+  }
+}
+
+/* ---------- VOICE COMMANDS ---------- */
+function handleVoice(text){
+  text = text.toLowerCase().trim();
+
+  if(text.includes("read status") || text.includes("order status")){
+    speak(
+      "Order status is " +
+      document.getElementById("orderStatus").innerText +
+      ". Delivery status is " +
+      document.getElementById("deliveryStatus").innerText
+    );
+    return;
+  }
+
+  if(text.includes("where is my order")){
+    speak(
+      "Your order is currently " +
+      document.getElementById("deliveryStatus").innerText
+    );
+    return;
+  }
+
+  if(text.includes("payment status")){
+    speak(
+      "Payment status is " +
+      document.getElementById("paymentStatus").innerText
+    );
+    return;
+  }
+}
+
+if(recognition){
+  recognition.onresult = (event)=>{
+    const transcript =
+      event.results[event.results.length-1][0].transcript;
+
+    handleVoice(transcript);
+  };
+
+  recognition.onend = ()=>{
+    if(!speaking){
+      setTimeout(()=>{ try{ recognition.start(); }catch(e){} },800);
+    }
+  };
+
+  setTimeout(()=>{ try{ recognition.start(); }catch(e){} },800);
+}
+
+/* ---------- INIT ---------- */
+
+fetchOrderStatus();
+setInterval(fetchOrderStatus,3000);
+
+setTimeout(()=>{
+  speak("Tracking started. I will update you when your order status changes.");
+},1200);
+
+</script>
+
+</body>
+</html>

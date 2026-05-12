@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aahaar | Home</title>
+
+<!-- GOOGLE FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===== Global ===== */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #faf7e8;
+    margin: 0;
+    color: #1f1f1f;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+    background: #8b61c0;
+    color: white;
+    padding: 16px 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+
+nav .logo {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+nav .user {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* ===== CAROUSEL ===== */
+.carousel {
+    position: relative;
+    overflow: hidden;
+    height: 300px;
+    border-radius: 22px;
+    margin: 24px 44px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.22);
+}
+
+.carousel img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+    transition: opacity 1s ease-in-out, transform 0.5s ease;
+}
+
+.carousel img:hover {
+    transform: scale(1.03);
+}
+
+
+
+.carousel-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.25),
+        rgba(0,0,0,0.55)
+    );
+    border-radius: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 24px;
+}
+
+.carousel-overlay h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.carousel-overlay p {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-bottom: 16px;
+}
+
+.carousel-overlay button {
+    padding: 12px 26px;
+    background: #8b61c0;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.carousel-overlay button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+/* ===== SEARCH ===== */
+.hero {
+    text-align: center;
+    padding: 24px 20px 10px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    max-width: 520px;
+    margin: auto;
+    gap: 10px;
+}
+
+.search-container input {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #d6d1c4;
+    font-size: 14px;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: #8b61c0;
+}
+
+.search-container button {
+    padding: 14px 24px;
+    background: #8b61c0;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    opacity: 0.9;
+}
+
+#voiceTip {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #5f5f5f;
+}
+
+/* ===== CATEGORIES ===== */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 30px 44px 10px;
+}
+
+.category-card {
+    background: white;
+    padding: 16px 14px;
+    border-radius: 16px;
+    width: 110px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.category-card img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+}
+
+.category-card span {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+}
+
+/* ===== RESTAURANTS ===== */
+.restaurant-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+    padding: 40px 44px 60px;
+    max-width: 1350px;
+    margin: auto;
+}
+
+.restaurant-card {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 48px rgba(0,0,0,0.24);
+}
+
+.restaurant-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.restaurant-info {
+    padding: 16px;
+}
+
+.restaurant-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #8b61c0;
+    margin-bottom: 4px;
+}
+
+.restaurant-info p {
+    font-size: 13px;
+    color: #555;
+}
+
+.rating {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background: #1f1f1f;
+    border-radius: 12px;
+}
+
+.badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: #1f1f1f;
+    color: white;
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.restaurant-info button {
+    margin-top: 12px;
+    width: 100%;
+    background: #8b61c0;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 14px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.restaurant-info button:hover {
+    opacity: 0.9;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    /* ===== HERO HEADER (formerly carousel) ===== */
+.carousel {
+    background: linear-gradient(
+        135deg,
+        #7a4fb8 0%,
+        #c9b6e8 50%,
+        #faf7e8 100%
+    );
+    height: 260px;
+    border-radius: 22px;
+    margin: 24px 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.22);
+}
+
+.carousel-overlay {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 24px;
+    color: #2b2b2b;
+}
+
+.carousel-overlay h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.carousel-overlay p {
+    font-size: 1rem;
+    margin-bottom: 16px;
+    color: #3f3f3f;
+}
+
+.carousel-overlay button {
+    padding: 12px 26px;
+    background: #8b61c0;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.carousel-overlay h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+
+
+
+    .restaurant-list {
+        padding: 30px 20px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .search-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .veg-toggle.inline {
+        margin-top: 6px;
+    }
+}
+
+
+.veg-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 14px;
+}
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.veg-toggle.inline {
+    margin: 0;
+}
+
+.veg-label {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+
+.veg-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1f1f1f;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 22px;
+    transition: 0.3s;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+input:checked + .slider {
+    background: #8b61c0;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">Aahaar</div>
+    <div class="user" id="userGreeting">Hello!</div>
+</nav>
+
+<!-- Carousel -->
+<div class="carousel" id="carousel">
+    <div class="carousel-overlay">
+        <h1>Order Food with Your Voice</h1>
+        <p>Search, speak, and order from top restaurants.</p>
+        <button id="startVoice">🎙️ Start Voice Ordering</button>
+    </div>
+</div>
+<div class="search-container">
+<input type="text" id="searchInput" placeholder="Search food, restaurants, or say high protein veg meals under ₹300">
+    <button id="searchBtn">Search</button>
+
+    <!-- Veg Toggle -->
+    <div class="veg-toggle inline">
+        <label class="switch">
+            <input type="checkbox" id="vegToggle">
+            <span class="slider"></span>
+        </label>
+        <span class="veg-label">Veg</span>
+    </div>
+</div>
+
+
+<!-- Categories -->
+<section class="categories">
+    <div class="category-card"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" alt=""><span>Pizza</span></div>
+    <div class="category-card"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046785.png" alt=""><span>Biryani</span></div>
+    <div class="category-card"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046786.png" alt=""><span>Burgers</span></div>
+    <div class="category-card"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046787.png" alt=""><span>Indian</span></div>
+    <div class="category-card"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046788.png" alt=""><span>Desserts</span></div>
+</section>
+
+<!-- Restaurants -->
+<section class="restaurant-list" id="restaurantList"></section>
+
+<script src="assets/js/home.js"></script>
+<script src="assets/js/home_voice.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Dashboard | Aahaar</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #faf7e8;
+    color: #333;
+    padding: 20px;
+  }
+
+  h2 {
+    color: #8b61c0;
+    margin-bottom: 14px;
+  }
+
+  .topbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  input, button {
+    font-family: inherit;
+  }
+
+  input[type="number"] {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+
+  .load-btn {
+    background: #8b61c0;
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .load-btn:hover {
+    background: #7249a8;
+  }
+
+  .info {
+    margin: 8px 0 14px;
+    font-size: 14px;
+    color: #555;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  th {
+    background-color: #8b61c0;
+    color: #fff;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f5f0f8;
+  }
+
+  tr:hover {
+    background-color: #e0d6f3;
+  }
+
+  .action-btn {
+    padding: 6px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #fff;
+    transition: all 0.2s ease;
+  }
+
+  .accept {
+    background-color: #8b61c0;
+  }
+
+  .accept:hover {
+    background-color: #7249a8;
+  }
+
+  .decline {
+    background-color: #ff6b6b;
+  }
+
+  .decline:hover {
+    background-color: #e04848;
+  }
+
+  .complete {
+    background-color: #2ecc71;
+  }
+
+  .complete:hover {
+    background-color: #27ae60;
+  }
+
+  .status-pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .pending { background: #fff3cd; color: #8a6d3b; }
+  .accepted { background: #d4edda; color: #155724; }
+  .declined { background: #f8d7da; color: #721c24; }
+  .completed { background: #d1ecf1; color: #0c5460; }
+</style>
+</head>
+<body>
+
+<h2>Delivery Partner Dashboard</h2>
+
+<div class="topbar">
+  <label>
+    Partner ID:
+    <input type="number" id="partnerId" value="1" min="1">
+  </label>
+  <button class="load-btn" onclick="loadAssignments()">Load Assignments</button>
+</div>
+
+<div class="info" id="dashboardInfo">
+  Waiting for assignments...
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Assignment ID</th>
+      <th>Order ID</th>
+      <th>Restaurant</th>
+      <th>User</th>
+      <th>Total</th>
+      <th>Order Status</th>
+      <th>Delivery Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="assignmentsTable">
+    <tr><td colspan="8">No assignments yet.</td></tr>
+  </tbody>
+</table>
+
+<script>
+const apiBase = "http://127.0.0.1:5000";
+
+function getPartnerId() {
+  return document.getElementById("partnerId").value.trim();
+}
+
+function getStatusPill(status) {
+  const s = (status || "").toLowerCase();
+
+  if (s === "pending") return `<span class="status-pill pending">${status}</span>`;
+  if (s === "accepted") return `<span class="status-pill accepted">${status}</span>`;
+  if (s === "declined") return `<span class="status-pill declined">${status}</span>`;
+  if (s === "completed") return `<span class="status-pill completed">${status}</span>`;
+
+  return `<span class="status-pill">${status || "-"}</span>`;
+}
+
+function getActionHtml(partnerId, assignment) {
+  const status = assignment.delivery_status || "";
+
+  if (status === "Pending") {
+    return `
+      <button class="action-btn accept" onclick="acceptAssignment(${partnerId}, ${assignment.assignment_id})">Accept</button>
+      <button class="action-btn decline" onclick="declineAssignment(${partnerId}, ${assignment.assignment_id})">Decline</button>
+    `;
+  }
+
+  if (status === "Accepted") {
+    return `
+      <button class="action-btn complete" onclick="completeDelivery(${partnerId}, ${assignment.order_id})">Complete Delivery</button>
+    `;
+  }
+
+  if (status === "Declined") return `Declined`;
+  if (status === "Completed") return `Completed`;
+
+  return status || "-";
+}
+
+async function loadAssignments() {
+  const partnerId = getPartnerId();
+  const tbody = document.getElementById("assignmentsTable");
+  const info = document.getElementById("dashboardInfo");
+
+  if (!partnerId) {
+    info.textContent = "Please enter a partner ID.";
+    tbody.innerHTML = `<tr><td colspan="8">Please enter a partner ID.</td></tr>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${apiBase}/delivery/${partnerId}/assignments`);
+    const data = await res.json();
+
+    console.log("Assignments response:", data);
+    tbody.innerHTML = "";
+
+    if (!res.ok) {
+      info.textContent = `Could not load assignments.`;
+      tbody.innerHTML = `<tr><td colspan="8">Error: ${data.error || "Failed to load assignments"}</td></tr>`;
+      return;
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+      info.textContent = `No assignments found for partner ${partnerId}.`;
+      tbody.innerHTML = `<tr><td colspan="8">No assignments yet. Waiting for restaurant orders...</td></tr>`;
+      return;
+    }
+
+    info.textContent = `Showing ${data.length} assignment(s) for partner ${partnerId}.`;
+
+    data.forEach(a => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${a.assignment_id}</td>
+        <td>${a.order_id}</td>
+        <td>${a.restaurant_name || "-"}</td>
+        <td>${a.user_name || "-"}</td>
+        <td>₹${a.total_amount ?? "-"}</td>
+        <td>${a.order_status || "-"}</td>
+        <td>${getStatusPill(a.delivery_status)}</td>
+        <td>${getActionHtml(partnerId, a)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    console.error("Failed to fetch assignments:", err);
+    info.textContent = `Connection error.`;
+    tbody.innerHTML = `<tr><td colspan="8">Connection error: ${err.message}</td></tr>`;
+  }
+}
+
+async function acceptAssignment(partnerId, assignmentId) {
+  try {
+    const res = await fetch(`${apiBase}/delivery/${partnerId}/assignments/${assignmentId}/accept`, {
+      method: "POST"
+    });
+
+    const data = await res.json();
+    console.log("Accept response:", data);
+
+    if (!res.ok) {
+      alert(data.error || "Failed to accept assignment");
+      return;
+    }
+
+    loadAssignments();
+  } catch (err) {
+    console.error("Accept failed:", err);
+    alert("Accept failed");
+  }
+}
+
+async function declineAssignment(partnerId, assignmentId) {
+  const reason = prompt("Reason for declining:");
+  if (!reason) return;
+
+  try {
+    const res = await fetch(`${apiBase}/delivery/${partnerId}/assignments/${assignmentId}/decline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason })
+    });
+
+    const data = await res.json();
+    console.log("Decline response:", data);
+
+    if (!res.ok) {
+      alert(data.error || "Failed to decline assignment");
+      return;
+    }
+
+    loadAssignments();
+  } catch (err) {
+    console.error("Decline failed:", err);
+    alert("Decline failed");
+  }
+}
+
+async function completeDelivery(partnerId, orderId) {
+  try {
+    const res = await fetch(`${apiBase}/delivery/${partnerId}/orders/${orderId}/complete`, {
+      method: "POST"
+    });
+
+    const data = await res.json();
+    console.log("Complete delivery response:", data);
+
+    if (!res.ok) {
+      alert(data.error || "Failed to complete delivery");
+      return;
+    }
+
+    alert("Order delivered successfully.");
+    loadAssignments();
+  } catch (err) {
+    console.error("Complete delivery failed:", err);
+    alert("Complete delivery failed");
+  }
+}
+
+setInterval(loadAssignments, 3000);
+loadAssignments();
+</script>
+
+</body>
+</html>

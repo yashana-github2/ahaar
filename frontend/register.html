@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aahaar - Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    body { font-family: 'Poppins', sans-serif; background: #faf7e8; margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box; }
+    .register-box { max-width: 400px; margin: 0 auto; background: white; padding: 28px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; color: #8b61c0; }
+    label { font-weight: 500; margin-top: 12px; display: block; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea {
+        width: 100%; margin-top: 4px; padding: 10px; border-radius: 10px; border: 1px solid #ccc; 
+        font-size: 14px; box-sizing: border-box;
+    }
+    input[type="password"], input[type="password"], textarea {
+        width: 100%; margin-top: 4px; padding: 10px; border-radius: 10px; border: 1px solid #ccc; 
+        font-size: 14px; box-sizing: border-box;}
+        
+    input.error {
+    border: 1px solid #e74c3c;
+    }
+
+    input.success {
+    border: 1px solid #2ecc71;
+    }
+
+    .row { display: flex; gap: 12px; }
+    .row > div { flex: 1; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+    .checkbox-row input { width: auto; margin: 0; }
+    button { width: 100%; margin-top: 20px; padding: 12px; background: #8b61c0; color: white; border: none; font-size: 16px; border-radius: 10px; cursor: pointer; }
+    button:hover { background: #6d45a2; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    #message { text-align: center; margin-top: 12px; font-size: 14px; }
+    .link { text-align: center; margin-top: 16px; }
+    .link a { color: #8b61c0; text-decoration: none; }
+    .link a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+    <div class="register-box">
+        <h2>Create account</h2>
+
+        <label>Full Name *</label>
+        <input type="text" id="name" placeholder="Your name" required>
+
+        <label>Phone Number *</label>
+        <input type="tel" id="phone" placeholder="10-digit mobile" maxlength="10">
+
+        <label>Email *</label>
+        <input type="email" id="email" placeholder="your@email.com">
+
+        <label>Password *</label>
+        <input type="password" id="password" placeholder="Create password">
+
+        <label>Confirm Password *</label>
+        <input type="password" id="confirm_password" placeholder="Confirm password">
+        <p id="password_match_msg" style="font-size:13px;margin-top:4px;"></p>
+
+        <label>Address line 1</label>
+        <input type="text" id="address_line1" placeholder="Street, building">
+
+        <label>Address line 2</label>
+        <input type="text" id="address_line2" placeholder="Area, landmark">
+
+        <div class="row">
+            <div><label>City</label><input type="text" id="city" placeholder="City"></div>
+            <div><label>Pincode</label><input type="text" id="pincode" placeholder="Pincode"></div>
+        </div>
+        <label>State</label>
+        <input type="text" id="state" placeholder="State">
+
+        <label>Delivery instructions (optional)</label>
+        <textarea id="delivery_instructions" rows="2" placeholder="e.g. Call on arrival, gate code"></textarea>
+
+        <div class="checkbox-row">
+            <input type="checkbox" id="is_blind_user">
+            <label for="is_blind_user" style="margin:0;">I use voice / accessibility features</label>
+        </div>
+
+        <button id="registerBtn">Register</button>
+        <p id="message"></p>
+        <p class="link">Already have an account? <a href="login.html">Login</a></p>
+    </div>
+    <script src="assets/js/register.js"></script>
+    <script src="assets/js/register_voice.js"></script>
+</body>
+</html>
