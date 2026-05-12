@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/assets", express.static(path.join(__dirname, "../frontend/assets")));
 
-const DEEPGRAM_API_KEY = "7f3c0ff8651be3dff36c10e0f10b7ee437094385"; // your Deepgram API key
+const DEEPGRAM_API_KEY = ""; // your Deepgram API key
 
 // Routes for HTML pages
 app.get("/", (req, res) => {
