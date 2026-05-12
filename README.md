@@ -27,7 +27,7 @@ Aahaar is an accessibility-focused food ordering web application designed to hel
 * CSS3
 * JavaScript
 * MySQL
-* Web Speech API
+* Deepgram API (for voice)
 
 
 
@@ -37,8 +37,10 @@ Aahaar uses browser-based Web Speech APIs to improve accessibility for visually 
 
 Technologies Used
 
-* SpeechRecognition API — Converts user speech into text commands
-* SpeechSynthesis API — Provides spoken instructions and feedback
+- SpeechRecognition API — Converts speech into text
+- SpeechSynthesis API — Provides spoken feedback
+- Deepgram API — Enhances speech recognition and voice processing
+
 
 Example Voice Commands
 
