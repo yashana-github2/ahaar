@@ -1,0 +1,731 @@
+CREATE DATABASE ahaar;
+USE ahaar;
+
+ALTER TABLE Delivery_Partners
+ADD COLUMN availability_status ENUM('Available','Busy') NOT NULL DEFAULT 'Available';
+
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(15) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    is_blind_user BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+desc users;
+
+UPDATE Delivery_Partners
+SET is_available = 1,
+    availability_status = 'Available';
+
+show tables;
+
+select * from Delivery_Partners;
+
+SELECT * FROM Delivery_Assignments ORDER BY assignment_id DESC;
+
+select  * from users;
+CREATE TABLE OTP_Verification (
+    otp_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    otp_hash VARCHAR(255) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    
+    FOREIGN KEY (user_id) 
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+use ahaar;
+select * from Menu_Items;
+
+
+
+CREATE TABLE User_Addresses (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    address_text TEXT NOT NULL,
+    landmark_audio_note VARCHAR(255),
+    latitude DECIMAL(10,7),
+    longitude DECIMAL(10,7),
+    is_default BOOLEAN DEFAULT FALSE,
+
+    FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Restaurants (
+    restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(150) NOT NULL,
+    phone_number VARCHAR(15),
+    location VARCHAR(150),
+    is_active BOOLEAN DEFAULT TRUE,
+    rating DECIMAL(2,1) DEFAULT 0.0
+);
+
+ALTER TABLE Restaurants
+ADD COLUMN is_pure_veg BOOLEAN DEFAULT FALSE;
+
+select * from orders;
+
+desc orders;
+
+CREATE TABLE Menu_Items (
+    item_id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurant_id INT NOT NULL,
+    item_name VARCHAR(150) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,
+
+    FOREIGN KEY (restaurant_id)
+        REFERENCES Restaurants(restaurant_id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE Menu_Items
+ADD COLUMN category VARCHAR(50);
+
+CREATE TABLE Nutritional_Info (
+    nutrition_id INT PRIMARY KEY AUTO_INCREMENT,
+    item_id INT NOT NULL,
+    calories INT,
+    proteins DECIMAL(5,2),
+    fats DECIMAL(5,2),
+    carbohydrates DECIMAL(5,2),
+    vitamins VARCHAR(100),
+    minerals VARCHAR(100),
+
+    FOREIGN KEY (item_id)
+        REFERENCES Menu_Items(item_id)
+        ON DELETE CASCADE
+);
+
+desc orders;
+
+select * from users;
+
+ALTER TABLE Orders
+ADD COLUMN payment_method VARCHAR(20);
+
+CREATE TABLE Payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    payment_method VARCHAR(20),
+    payment_status VARCHAR(20) DEFAULT 'pending',
+    transaction_ref VARCHAR(120),
+    paid_at TIMESTAMP,
+
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+);
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    restaurant_id INT NOT NULL,
+    order_status VARCHAR(50) DEFAULT 'Pending',
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_status VARCHAR(50) DEFAULT 'Unpaid',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (restaurant_id)
+        REFERENCES Restaurants(restaurant_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Order_Items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    item_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+
+    FOREIGN KEY (order_id)
+        REFERENCES Orders(order_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (item_id)
+        REFERENCES Menu_Items(item_id)
+        ON DELETE CASCADE
+);
+
+desc nutritional_info;
+
+select * from delivery_partners;
+
+desc payments;
+
+desc delivery_partners;
+
+select * from cart_items;
+show tables;
+CREATE TABLE Delivery_Partners (
+    partner_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(15),
+    vehicle_type VARCHAR(50),
+    is_available BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE Delivery_Assignments (
+    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    partner_id INT NOT NULL,
+    pickup_time DATETIME,
+    delivery_time DATETIME,
+    delivery_status VARCHAR(50) DEFAULT 'Assigned',
+
+    FOREIGN KEY (order_id)
+        REFERENCES Orders(order_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (partner_id)
+        REFERENCES Delivery_Partners(partner_id)
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Feedback (
+    feedback_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    comments TEXT,
+
+    FOREIGN KEY (order_id)
+        REFERENCES Orders(order_id)
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+SHOW TABLES;
+
+desc restaurants;
+
+select * from user_addresses;
+INSERT INTO Users (name, phone_number, email, is_blind_user)
+VALUES ('Yash', '9876543210', 'user@gmail.com', TRUE);
+
+INSERT INTO Restaurants (name, phone_number, location, rating)
+VALUES ('Spice Villa', '9988776655', 'Anna Nagar, Chennai', 4.5);
+
+SELECT * FROM Restaurants;
+
+DELETE FROM restaurants
+WHERE restaurant_id = 3;
+
+select * from categories;
+select * from restaurants;
+select * from menu_items;
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(4, 'Miso Soup', 'Japanese soup with tofu and seaweed', 150, 1, 'assets/imgs/menu/miso_soup.jpg', 1, 1, 'Starters'),
+(4, 'Edamame', 'Boiled soybeans with sea salt', 170, 1, 'assets/imgs/menu/edamame.jpg', 1, 1, 'Starters'),
+(4, 'Tempura Veggies', 'Lightly battered and fried vegetables', 240, 1, 'assets/imgs/menu/tempura_veg.jpg', 1, 1, 'Starters'),
+(4, 'California Roll', 'Crab stick, cucumber and avocado roll', 420, 1, 'assets/imgs/menu/california_roll.jpg', 0, 23, 'Sushi & Rolls'),
+(4, 'Veg Avocado Roll', 'Fresh avocado sushi roll', 380, 1, 'assets/imgs/menu/avocado_roll.jpg', 1, 23, 'Sushi & Rolls'),
+(4, 'Salmon Sushi', 'Fresh salmon sushi pieces', 460, 1, 'assets/imgs/menu/salmon_sushi.jpg', 0, 23, 'Sushi & Rolls'),
+(4, 'Crunchy Prawn Roll', 'Crispy prawn sushi roll', 480, 1, 'assets/imgs/menu/prawn_roll.jpg', 0, 23, 'Sushi & Rolls'),
+(4, 'Cucumber Roll', 'Simple sushi roll with cucumber filling', 300, 1, 'assets/imgs/menu/cucumber_roll.jpg', 1, 23, 'Sushi & Rolls'),
+(4, 'Chicken Teriyaki Roll', 'Sushi roll with teriyaki chicken', 450, 1, 'assets/imgs/menu/chicken_teriyaki_roll.jpg', 0, 23, 'Sushi & Rolls'),
+(4, 'Veg Ramen Bowl', 'Japanese noodle bowl with vegetables', 340, 1, 'assets/imgs/menu/veg_ramen.jpg', 1, 3, 'Rice & Noodles'),
+(4, 'Chicken Ramen Bowl', 'Noodle bowl with chicken and broth', 390, 1, 'assets/imgs/menu/chicken_ramen.jpg', 0, 3, 'Rice & Noodles'),
+(4, 'Green Tea', 'Fresh hot Japanese green tea', 100, 1, 'assets/imgs/menu/green_tea.jpg', 1, 5, 'Beverages'),
+(4, 'Iced Matcha Latte', 'Chilled matcha latte', 180, 1, 'assets/imgs/menu/matcha_latte.jpg', 1, 5, 'Beverages'),
+(4, 'Matcha Cheesecake', 'Cheesecake infused with matcha', 240, 1, 'assets/imgs/menu/matcha_cheesecake.jpg', 1, 6, 'Desserts'),
+(4, 'Mochi Ice Cream', 'Soft mochi filled with ice cream', 220, 1, 'assets/imgs/menu/mochi_icecream.jpg', 1, 6, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(3, 'French Fries', 'Crispy salted fries', 140, 1, 'assets/imgs/menu/fries.jpg', 1, 1, 'Starters'),
+(3, 'Cheese Fries', 'Loaded fries topped with cheese sauce', 180, 1, 'assets/imgs/menu/cheese_fries.jpg', 1, 1, 'Starters'),
+(3, 'Onion Rings', 'Crunchy battered onion rings', 160, 1, 'assets/imgs/menu/onion_rings.jpg', 1, 1, 'Starters'),
+(3, 'Classic Chicken Burger', 'Chicken patty burger with lettuce and mayo', 260, 1, 'assets/imgs/menu/chicken_burger.jpg', 0, 18, 'Burgers & Wraps'),
+(3, 'Veg Cheese Burger', 'Veg patty burger with cheese', 220, 1, 'assets/imgs/menu/veg_burger.jpg', 1, 18, 'Burgers & Wraps'),
+(3, 'Double Patty Burger', 'Double chicken patty burger with sauces', 320, 1, 'assets/imgs/menu/double_burger.jpg', 0, 18, 'Burgers & Wraps'),
+(3, 'Paneer Burger', 'Spicy paneer burger with fresh veggies', 240, 1, 'assets/imgs/menu/paneer_burger.jpg', 1, 18, 'Burgers & Wraps'),
+(3, 'Chicken Wrap', 'Soft wrap filled with grilled chicken', 250, 1, 'assets/imgs/menu/chicken_wrap.jpg', 0, 18, 'Burgers & Wraps'),
+(3, 'Veg Wrap', 'Soft wrap stuffed with veg filling', 210, 1, 'assets/imgs/menu/veg_wrap.jpg', 1, 18, 'Burgers & Wraps'),
+(3, 'Loaded Chicken Burger', 'Burger loaded with chicken, cheese and sauces', 340, 1, 'assets/imgs/menu/loaded_chicken_burger.jpg', 0, 18, 'Burgers & Wraps'),
+(3, 'Peri Peri Fries', 'Spicy peri peri seasoned fries', 170, 1, 'assets/imgs/menu/peri_peri_fries.jpg', 1, 1, 'Starters'),
+(3, 'Coke Float', 'Chilled cola topped with ice cream', 120, 1, 'assets/imgs/menu/coke_float.jpg', 1, 5, 'Beverages'),
+(3, 'Cold Coffee', 'Iced coffee with cream', 160, 1, 'assets/imgs/menu/cold_coffee.jpg', 1, 5, 'Beverages'),
+(3, 'Brownie Sundae', 'Brownie served with vanilla ice cream', 210, 1, 'assets/imgs/menu/brownie_sundae.jpg', 1, 6, 'Desserts'),
+(3, 'Choco Lava Cup', 'Warm chocolate lava dessert', 180, 1, 'assets/imgs/menu/lava_cup.jpg', 1, 6, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(2, 'Bruschetta', 'Toasted bread topped with tomato, basil and olive oil', 180, 1, 'assets/imgs/menu/bruschetta.jpg', 1, 1, 'Starters'),
+(2, 'Garlic Bread', 'Toasted bread with garlic butter and herbs', 160, 1, 'assets/imgs/menu/garlic_bread.jpg', 1, 1, 'Starters'),
+(2, 'Cheese Balls', 'Crispy cheese-filled fried bites', 190, 1, 'assets/imgs/menu/cheese_balls.jpg', 1, 1, 'Starters'),
+(2, 'Creamy Alfredo Pasta', 'Penne pasta in creamy white sauce', 320, 1, 'assets/imgs/menu/alfredo_pasta.jpg', 1, 11, 'Italian Specials'),
+(2, 'Arrabbiata Pasta', 'Spicy tomato based pasta with herbs', 300, 1, 'assets/imgs/menu/arrabbiata_pasta.jpg', 1, 11, 'Italian Specials'),
+(2, 'Pesto Pasta', 'Pasta tossed in fresh basil pesto sauce', 330, 1, 'assets/imgs/menu/pesto_pasta.jpg', 1, 11, 'Italian Specials'),
+(2, 'Lasagna', 'Layered baked pasta with cheese and sauce', 360, 1, 'assets/imgs/menu/lasagna.jpg', 1,11, 'Italian Specials'),
+(2, 'Mushroom Risotto', 'Creamy arborio rice with mushrooms and herbs', 340, 1, 'assets/imgs/menu/mushroom_risotto.jpg', 1, 11, 'Italian Specials'),
+(2, 'Spaghetti Aglio e Olio', 'Spaghetti with garlic, olive oil and chilli flakes', 290, 1, 'assets/imgs/menu/aglio_olio.jpg', 1, 11, 'Italian Specials'),
+(2, 'Baked Mac and Cheese', 'Macaroni baked with rich cheese sauce', 310, 1, 'assets/imgs/menu/mac_cheese.jpg', 1,11, 'Italian Specials'),
+(2, 'Veggie Pizza Slice', 'Italian style pizza slice with fresh veggies', 220, 1, 'assets/imgs/menu/veggie_pizza_slice.jpg', 1, 11, 'Italian Specials'),
+(2, 'Lemon Iced Tea', 'Chilled iced tea with lemon flavour', 110, 1, 'assets/imgs/menu/lemon_iced_tea.jpg', 1, 5, 'Beverages'),
+(2, 'Cold Coffee', 'Creamy cold coffee served chilled', 150, 1, 'assets/imgs/menu/cold_coffee.jpg', 1, 5, 'Beverages'),
+(2, 'Tiramisu Cup', 'Classic Italian coffee dessert', 220, 1, 'assets/imgs/menu/tiramisu.jpg', 1, 6, 'Desserts'),
+(2, 'Chocolate Mousse', 'Smooth and rich chocolate mousse', 200, 1, 'assets/imgs/menu/chocolate_mousse.jpg', 1, 6, 'Desserts');
+
+select * from categories;
+
+SELECT * FROM menu_items;
+SELECT * FROM categories;
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(5, 'Nachos with Salsa', 'Crunchy nachos with salsa dip', 190, 1, 'assets/imgs/menu/nachos.jpg', 1, 1, 'Starters'),
+(5, 'Cheese Nachos', 'Nachos loaded with cheese sauce', 220, 1, 'assets/imgs/menu/cheese_nachos.jpg', 1, 1, 'Starters'),
+(5, 'Jalapeno Poppers', 'Crispy jalapeno bites stuffed with cheese', 210, 1, 'assets/imgs/menu/jalapeno_poppers.jpg', 1, 1, 'Starters'),
+(5, 'Chicken Taco Trio', 'Three soft tacos with spicy chicken', 330, 1, 'assets/imgs/menu/chicken_tacos.jpg', 0, 28, 'Mexican Specials'),
+(5, 'Veg Taco Trio', 'Three tacos stuffed with beans and veggies', 280, 1, 'assets/imgs/menu/veg_tacos.jpg', 1, 28, 'Mexican Specials'),
+(5, 'Bean Burrito', 'Burrito stuffed with beans, rice and cheese', 290, 1, 'assets/imgs/menu/bean_burrito.jpg', 1, 28, 'Mexican Specials'),
+(5, 'Chicken Burrito', 'Burrito filled with chicken and rice', 340, 1, 'assets/imgs/menu/chicken_burrito.jpg', 0, 28, 'Mexican Specials'),
+(5, 'Veg Quesadilla', 'Grilled tortilla stuffed with cheese and veggies', 260, 1, 'assets/imgs/menu/veg_quesadilla.jpg', 1, 28, 'Mexican Specials'),
+(5, 'Chicken Quesadilla', 'Cheesy tortilla filled with chicken', 320, 1, 'assets/imgs/menu/chicken_quesadilla.jpg', 0, 28, 'Mexican Specials'),
+(5, 'Mexican Rice Bowl', 'Rice bowl with beans, salsa and toppings', 300, 1, 'assets/imgs/menu/mexican_rice_bowl.jpg', 1, 27, 'Rice & Noodles'),
+(5, 'Chicken Rice Bowl', 'Rice bowl with grilled chicken and salsa', 350, 1, 'assets/imgs/menu/chicken_rice_bowl.jpg', 0, 27, 'Rice & Noodles'),
+(5, 'Lime Soda', 'Refreshing lime soda', 90, 1, 'assets/imgs/menu/lime_soda.jpg', 1, 5, 'Beverages'),
+(5, 'Iced Tea', 'Chilled tea with lemon', 100, 1, 'assets/imgs/menu/iced_tea.jpg', 1, 5, 'Beverages'),
+(5, 'Churros', 'Crispy churros dusted with sugar', 170, 1, 'assets/imgs/menu/churros.jpg', 1, 6, 'Desserts'),
+(5, 'Chocolate Taco Dessert', 'Sweet taco shell filled with chocolate cream', 190, 1, 'assets/imgs/menu/choco_taco.jpg', 1, 6, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(6, 'Medu Vada', 'Crispy urad dal vada with chutney', 90, 1, 'assets/imgs/menu/medu_vada.jpg', 1, 31, 'Starters'),
+(6, 'Samosa', 'Crispy pastry with spicy potato filling', 70, 1, 'assets/imgs/menu/samosa.jpg', 1, 31, 'Starters'),
+(6, 'Mini Bajji Platter', 'Assorted south Indian bajji platter', 110, 1, 'assets/imgs/menu/bajji_platter.jpg', 1, 31, 'Starters'),
+(6, 'Idli Sambar', 'Soft idlis with hot sambar', 80, 1, 'assets/imgs/menu/idli_sambar.jpg', 1, 34, 'South Indian Tiffin'),
+(6, 'Ghee Masala Dosa', 'Crispy dosa with masala and ghee', 140, 1, 'assets/imgs/menu/ghee_masala_dosa.jpg', 1, 34, 'South Indian Tiffin'),
+(6, 'Plain Dosa', 'Classic crispy plain dosa', 90, 1, 'assets/imgs/menu/plain_dosa.jpg', 1, 34, 'South Indian Tiffin'),
+(6, 'Pongal', 'Creamy ven pongal with chutney', 100, 1, 'assets/imgs/menu/pongal.jpg', 1, 34, 'South Indian Tiffin'),
+(6, 'Poori Masala', 'Pooris served with potato masala', 120, 1, 'assets/imgs/menu/poori_masala.jpg', 1, 34, 'South Indian Tiffin'),
+(6, 'Curd Rice', 'Cooling curd rice tempered with spices', 110, 1, 'assets/imgs/menu/curd_rice.jpg', 1, 32, 'Rice & Noodles'),
+(6, 'Lemon Rice', 'Tangy lemon-flavoured rice', 120, 1, 'assets/imgs/menu/lemon_rice.jpg', 1, 32, 'Rice & Noodles'),
+(6, 'Chapati Kurma', 'Soft chapatis with veg kurma', 130, 1, 'assets/imgs/menu/chapati_kurma.jpg', 1, 33, 'Indian Breads'),
+(6, 'Parotta Salna', 'Layered parotta with flavourful salna', 140, 1, 'assets/imgs/menu/parotta_salna.jpg', 1,33, 'Indian Breads'),
+(6, 'Filter Coffee', 'Authentic south Indian filter coffee', 60, 1, 'assets/imgs/menu/filter_coffee.jpg', 1, 30, 'Beverages'),
+(6, 'Badam Milk', 'Sweet chilled badam milk', 80, 1, 'assets/imgs/menu/badam_milk.jpg', 1, 30, 'Beverages'),
+(6, 'Kesari', 'Sweet semolina dessert', 90, 1, 'assets/imgs/menu/kesari.jpg', 1, 35, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(7, 'Corn Cheese Balls', 'Crispy corn and cheese bites', 170, 1, 'assets/imgs/menu/corn_cheese_balls.jpg', 1, 37, 'Starters'),
+(7, 'Veg Soup', 'Healthy vegetable soup', 120, 1, 'assets/imgs/menu/veg_soup.jpg', 1, 37, 'Starters'),
+(7, 'Paneer Tikka', 'Grilled paneer cubes with spices', 220, 1, 'assets/imgs/menu/paneer_tikka.jpg', 1, 37, 'Starters'),
+(7, 'Greek Salad Bowl', 'Fresh vegetables with dressing', 240, 1, 'assets/imgs/menu/greek_salad.jpg', 1, 40, 'Salads & Healthy Bowls'),
+(7, 'Paneer Buddha Bowl', 'Rice, paneer and veggies in one bowl', 280, 1, 'assets/imgs/menu/paneer_bowl.jpg', 1, 40, 'Salads & Healthy Bowls'),
+(7, 'Quinoa Salad Bowl', 'Quinoa with roasted vegetables', 290, 1, 'assets/imgs/menu/quinoa_bowl.jpg', 1, 40, 'Salads & Healthy Bowls'),
+(7, 'Veg Wrap Bowl', 'Healthy bowl with fresh wrap fillings', 250, 1, 'assets/imgs/menu/veg_wrap_bowl.jpg', 1, 40, 'Salads & Healthy Bowls'),
+(7, 'Veg Pulao', 'Mildly spiced vegetable pulao', 220, 1, 'assets/imgs/menu/veg_pulao.jpg', 1, 38, 'Rice & Noodles'),
+(7, 'Hakka Veg Noodles', 'Vegetable hakka noodles', 230, 1, 'assets/imgs/menu/veg_hakka_noodles.jpg', 1, 38, 'Rice & Noodles'),
+(7, 'Paneer Butter Masala', 'Rich paneer curry', 260, 1, 'assets/imgs/menu/paneer_butter_masala.jpg', 1, 39, 'Indian Mains'),
+(7, 'Butter Naan', 'Soft naan with butter', 50, 1, 'assets/imgs/menu/butter_naan.jpg', 1, 39, 'Indian Breads'),
+(7, 'Fresh Lime Juice', 'Refreshing lime juice', 90, 1, 'assets/imgs/menu/fresh_lime.jpg', 1, 36, 'Beverages'),
+(7, 'Fruit Smoothie', 'Blended fruit smoothie', 150, 1, 'assets/imgs/menu/fruit_smoothie.jpg', 1, 36, 'Beverages'),
+(7, 'Fruit Yogurt Parfait', 'Yogurt layered with fruits and granola', 180, 1, 'assets/imgs/menu/parfait.jpg', 1, 35, 'Desserts'),
+(7, 'Brownie Bite', 'Small chocolate brownie dessert', 140, 1, 'assets/imgs/menu/brownie_bite.jpg', 1, 35, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(8, 'Garlic Bread', 'Buttery garlic bread', 160, 1, 'assets/imgs/menu/garlic_bread.jpg', 1, 43, 'Starters'),
+(8, 'Chicken Wings', 'Crispy chicken wings', 240, 1, 'assets/imgs/menu/chicken_wings.jpg', 0, 43, 'Starters'),
+(8, 'Cheese Poppers', 'Crunchy cheese-filled starters', 190, 1, 'assets/imgs/menu/cheese_poppers.jpg', 1, 43, 'Starters'),
+(8, 'Grilled Chicken Steak', 'Chicken steak served with veggies', 480, 1, 'assets/imgs/menu/chicken_steak.jpg', 0, 45, 'Steaks & Grills'),
+(8, 'Pepper Beef Steak', 'Tender beef steak in pepper sauce', 560, 1, 'assets/imgs/menu/beef_steak.jpg', 0, 45, 'Steaks & Grills'),
+(8, 'Herb Chicken Steak', 'Juicy chicken steak with herbs', 500, 1, 'assets/imgs/menu/herb_chicken_steak.jpg', 0, 45, 'Steaks & Grills'),
+(8, 'Grilled Fish Steak', 'Fish fillet grilled with butter and herbs', 520, 1, 'assets/imgs/menu/fish_steak.jpg', 0, 45, 'Steaks & Grills'),
+(8, 'Paneer Steak Platter', 'Grilled paneer platter with sides', 360, 1, 'assets/imgs/menu/paneer_steak.jpg', 1, 45, 'Steaks & Grills'),
+(8, 'Mashed Potato Side', 'Creamy mashed potatoes', 140, 1, 'assets/imgs/menu/mashed_potato.jpg', 1, 43, 'Starters'),
+(8, 'Grilled Veggies', 'Seasoned grilled vegetables', 180, 1, 'assets/imgs/menu/grilled_veggies.jpg', 1, 43, 'Starters'),
+(8, 'Chicken Rice Bowl', 'Rice bowl with grilled chicken', 320, 1, 'assets/imgs/menu/chicken_rice_bowl.jpg', 0, 44, 'Rice & Noodles'),
+(8, 'Veg Rice Bowl', 'Rice bowl with grilled vegetables', 260, 1, 'assets/imgs/menu/veg_rice_bowl.jpg', 1, 44, 'Rice & Noodles'),
+(8, 'Chocolate Shake', 'Rich chocolate milkshake', 190, 1, 'assets/imgs/menu/chocolate_shake.jpg', 1, 42, 'Beverages'),
+(8, 'Lemon Cooler', 'Fresh lemon cooler', 100, 1, 'assets/imgs/menu/lemon_cooler.jpg', 1, 42, 'Beverages'),
+(8, 'Brownie with Ice Cream', 'Warm brownie with vanilla ice cream', 220, 1, 'assets/imgs/menu/brownie_icecream.jpg', 1, 41, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(9, 'Veg Spring Roll', 'Crispy vegetable spring rolls', 150, 1, 'assets/imgs/menu/spring_roll.jpg', 1, 48, 'Starters'),
+(9, 'Momos', 'Steamed dumplings with chutney', 170, 1, 'assets/imgs/menu/momos.jpg', 1, 48, 'Starters'),
+(9, 'Crispy Corn', 'Crispy tossed corn kernels', 160, 1, 'assets/imgs/menu/crispy_corn.jpg', 1, 48, 'Starters'),
+(9, 'Hakka Noodles', 'Stir-fried noodles with vegetables', 230, 1, 'assets/imgs/menu/hakka_noodles.jpg', 1, 50, 'Chinese Mains'),
+(9, 'Schezwan Noodles', 'Spicy noodles with schezwan flavour', 240, 1, 'assets/imgs/menu/schezwan_noodles.jpg', 1, 50, 'Chinese Mains'),
+(9, 'Chicken Noodles', 'Stir-fried noodles with chicken', 280, 1, 'assets/imgs/menu/chicken_noodles.jpg', 0, 50, 'Chinese Mains'),
+(9, 'Veg Fried Rice', 'Classic vegetable fried rice', 220, 1, 'assets/imgs/menu/veg_fried_rice.jpg', 1, 49, 'Rice & Noodles'),
+(9, 'Schezwan Fried Rice', 'Spicy schezwan fried rice', 240, 1, 'assets/imgs/menu/schezwan_rice.jpg', 1, 49, 'Rice & Noodles'),
+(9, 'Chicken Fried Rice', 'Fried rice tossed with chicken', 290, 1, 'assets/imgs/menu/chicken_fried_rice.jpg', 0, 49, 'Rice & Noodles'),
+(9, 'Paneer Noodles', 'Noodles with paneer and sauces', 250, 1, 'assets/imgs/menu/paneer_noodles.jpg', 1, 50, 'Chinese Mains'),
+(9, 'Manchurian Gravy', 'Veg balls in spicy gravy', 230, 1, 'assets/imgs/menu/manchurian_gravy.jpg', 1, 50, 'Chinese Mains'),
+(9, 'Sweet Corn Soup', 'Light sweet corn soup', 130, 1, 'assets/imgs/menu/sweet_corn_soup.jpg', 1, 48, 'Starters'),
+(9, 'Lemon Tea', 'Warm lemon tea', 90, 1, 'assets/imgs/menu/lemon_tea.jpg', 1, 47, 'Beverages'),
+(9, 'Iced Lemon Drink', 'Chilled lemon drink', 95, 1, 'assets/imgs/menu/iced_lemon.jpg', 1, 47, 'Beverages'),
+(9, 'Honey Noodles with Ice Cream', 'Crispy honey noodles dessert', 180, 1, 'assets/imgs/menu/honey_noodles.jpg', 1, 46, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(10, 'Cheesy Garlic Sticks', 'Baked garlic sticks topped with cheese', 190, 1, 'assets/imgs/menu/garlic_sticks.jpg', 1, 53, 'Starters'),
+(10, 'Veg Nuggets', 'Crispy veg nuggets', 170, 1, 'assets/imgs/menu/veg_nuggets.jpg', 1, 53, 'Starters'),
+(10, 'Cheese Corn Cups', 'Cheesy baked corn cups', 180, 1, 'assets/imgs/menu/cheese_corn_cups.jpg', 1, 53, 'Starters'),
+(10, 'Margherita Pizza', 'Classic mozzarella pizza', 310, 1, 'assets/imgs/menu/margherita.jpg', 1, 55, 'Pizzas'),
+(10, 'Farmhouse Pizza', 'Pizza with onion, capsicum, mushroom and corn', 370, 1, 'assets/imgs/menu/farmhouse_pizza.jpg', 1, 55, 'Pizzas'),
+(10, 'Paneer Tikka Pizza', 'Pizza topped with spicy paneer', 390, 1, 'assets/imgs/menu/paneer_tikka_pizza.jpg', 1, 55, 'Pizzas'),
+(10, 'Chicken Pepperoni Pizza', 'Pepperoni style chicken pizza', 420, 1, 'assets/imgs/menu/chicken_pepperoni_pizza.jpg', 0, 55, 'Pizzas'),
+(10, 'BBQ Chicken Pizza', 'Pizza with BBQ chicken topping', 430, 1, 'assets/imgs/menu/bbq_chicken_pizza.jpg', 0, 55, 'Pizzas'),
+(10, 'Veggie Burst Pizza', 'Loaded vegetable pizza', 360, 1, 'assets/imgs/menu/veggie_burst_pizza.jpg', 1, 55, 'Pizzas'),
+(10, 'Cheese Burst Pizza', 'Pizza with extra cheese filling', 410, 1, 'assets/imgs/menu/cheese_burst_pizza.jpg', 1, 55, 'Pizzas'),
+(10, 'Pasta Alfredo Cup', 'Creamy pasta side dish', 220, 1, 'assets/imgs/menu/pasta_alfredo_cup.jpg', 1, 54, 'Italian Specials'),
+(10, 'Cold Coffee', 'Chilled creamy coffee', 150, 1, 'assets/imgs/menu/cold_coffee.jpg', 1, 52, 'Beverages'),
+(10, 'Pepsi', 'Chilled soft drink', 60, 1, 'assets/imgs/menu/pepsi.jpg', 1, 52, 'Beverages'),
+(10, 'Brownie Sundae', 'Brownie topped with ice cream', 210, 1, 'assets/imgs/menu/brownie_sundae.jpg', 1, 51, 'Desserts'),
+(10, 'Choco Lava Cake', 'Warm cake with molten chocolate centre', 180, 1, 'assets/imgs/menu/lava_cake.jpg', 1, 51, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(11, 'Chicken 65', 'Spicy fried chicken starter', 220, 1, 'assets/imgs/menu/chicken65.jpg', 0, 58, 'Starters'),
+(11, 'Paneer 65', 'Spicy paneer starter', 200, 1, 'assets/imgs/menu/paneer65.jpg', 1, 58, 'Starters'),
+(11, 'Gobi 65', 'Crispy cauliflower starter', 170, 1, 'assets/imgs/menu/gobi65.jpg', 1, 58, 'Starters'),
+(11, 'Chicken Dum Biryani', 'Fragrant biryani with chicken', 340, 1, 'assets/imgs/menu/chicken_biryani.jpg', 0, 61, 'Biryani & Combos'),
+(11, 'Mutton Biryani', 'Slow-cooked biryani with mutton', 420, 1, 'assets/imgs/menu/mutton_biryani.jpg', 0, 61, 'Biryani & Combos'),
+(11, 'Veg Biryani', 'Aromatic vegetable biryani', 260, 1, 'assets/imgs/menu/veg_biryani.jpg', 1, 61, 'Biryani & Combos'),
+(11, 'Paneer Biryani', 'Spiced biryani with paneer', 290, 1, 'assets/imgs/menu/paneer_biryani.jpg', 1, 61, 'Biryani & Combos'),
+(11, 'Egg Biryani', 'Flavourful biryani with boiled eggs', 280, 1, 'assets/imgs/menu/egg_biryani.jpg', 0, 61, 'Biryani & Combos'),
+(11, 'Chicken Combo Meal', 'Chicken biryani served with gravy and raita', 380, 1, 'assets/imgs/menu/chicken_combo.jpg', 0, 61, 'Biryani & Combos'),
+(11, 'Veg Combo Meal', 'Veg biryani served with gravy and raita', 300, 1, 'assets/imgs/menu/veg_combo.jpg', 1, 61, 'Biryani & Combos'),
+(11, 'Butter Chicken', 'Rich creamy chicken curry', 320, 1, 'assets/imgs/menu/butter_chicken.jpg', 0, 60, 'Indian Mains'),
+(11, 'Butter Naan', 'Soft butter naan', 50, 1, 'assets/imgs/menu/butter_naan.jpg', 1, 59, 'Indian Breads'),
+(11, 'Sweet Lassi', 'Sweet yogurt-based drink', 90, 1, 'assets/imgs/menu/sweet_lassi.jpg', 1, 57 , 'Beverages'),
+(11, 'Gulab Jamun', 'Soft syrup-soaked dessert', 120, 1, 'assets/imgs/menu/gulab_jamun.jpg', 1, 56, 'Desserts'),
+(11, 'Double Ka Meetha', 'Traditional bread-based dessert', 140, 1, 'assets/imgs/menu/double_ka_meetha.jpg', 1, 56, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(12, 'Prawn Fry', 'Crispy fried prawns with spices', 280, 1, 'assets/imgs/menu/prawn_fry.jpg', 0, 64, 'Starters'),
+(12, 'Fish Fry', 'Spiced shallow-fried fish', 260, 1, 'assets/imgs/menu/fish_fry.jpg', 0, 64, 'Starters'),
+(12, 'Calamari Rings', 'Crispy squid rings', 300, 1, 'assets/imgs/menu/calamari.jpg', 0, 64, 'Starters'),
+(12, 'Fish Curry Meal', 'Fish curry served with rice', 360, 1, 'assets/imgs/menu/fish_curry_meal.jpg', 0, 68, 'Seafood Mains'),
+(12, 'Grilled Fish Fillet', 'Fish fillet grilled with herbs', 420, 1, 'assets/imgs/menu/grilled_fish.jpg', 0, 68, 'Seafood Mains'),
+(12, 'Prawn Masala', 'Prawns cooked in masala gravy', 390, 1, 'assets/imgs/menu/prawn_masala.jpg', 0, 68, 'Seafood Mains'),
+(12, 'Crab Curry', 'Spicy crab curry', 440, 1, 'assets/imgs/menu/crab_curry.jpg', 0, 68, 'Seafood Mains'),
+(12, 'Seafood Rice Bowl', 'Rice bowl topped with seafood mix', 350, 1, 'assets/imgs/menu/seafood_rice_bowl.jpg', 0, 66, 'Rice & Noodles'),
+(12, 'Prawn Fried Rice', 'Fried rice with prawns', 330, 1, 'assets/imgs/menu/prawn_fried_rice.jpg', 0, 66, 'Rice & Noodles'),
+(12, 'Fish Biryani', 'Aromatic biryani with fish', 340, 1, 'assets/imgs/menu/fish_biryani.jpg', 0, 67, 'Biryani & Combos'),
+(12, 'Butter Naan', 'Soft naan bread', 50, 1, 'assets/imgs/menu/butter_naan.jpg', 1, 65, 'Indian Breads'),
+(12, 'Lemon Mint Cooler', 'Refreshing mint cooler', 110, 1, 'assets/imgs/menu/mint_cooler.jpg', 1, 63, 'Beverages'),
+(12, 'Fresh Lime Soda', 'Classic lime soda', 90, 1, 'assets/imgs/menu/fresh_lime_soda.jpg', 1, 63, 'Beverages'),
+(12, 'Caramel Pudding', 'Smooth caramel dessert', 150, 1, 'assets/imgs/menu/caramel_pudding.jpg', 1, 62, 'Desserts'),
+(12, 'Ice Cream Cup', 'Vanilla ice cream dessert', 100, 1, 'assets/imgs/menu/icecream_cup.jpg', 1, 62, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(13, 'Veg Sandwich', 'Grilled sandwich with vegetables and cheese', 160, 1, 'assets/imgs/menu/veg_sandwich.jpg', 1, 69, 'Starters'),
+(13, 'Garlic Toast', 'Toasted bread with garlic butter', 120, 1, 'assets/imgs/menu/garlic_toast.jpg', 1, 69, 'Starters'),
+(13, 'French Fries', 'Crispy café-style fries', 140, 1, 'assets/imgs/menu/fries.jpg', 1, 69, 'Starters'),
+(13, 'Cappuccino', 'Freshly brewed cappuccino', 140, 1, 'assets/imgs/menu/cappuccino.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Cafe Latte', 'Espresso with steamed milk', 150, 1, 'assets/imgs/menu/latte.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Mocha', 'Coffee blended with chocolate', 160, 1, 'assets/imgs/menu/mocha.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Cold Coffee', 'Iced creamy coffee', 170, 1, 'assets/imgs/menu/cold_coffee.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Chocolate Shake', 'Rich chocolate milkshake', 180, 1, 'assets/imgs/menu/chocolate_shake.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Vanilla Shake', 'Classic vanilla milkshake', 170, 1, 'assets/imgs/menu/vanilla_shake.jpg', 1, 73, 'Coffee & Shakes'),
+(13, 'Blueberry Muffin', 'Soft muffin with blueberry filling', 130, 1, 'assets/imgs/menu/blueberry_muffin.jpg', 1, 70, 'Cakes & Pastries'),
+(13, 'Chocolate Muffin', 'Moist chocolate muffin', 130, 1, 'assets/imgs/menu/chocolate_muffin.jpg', 1, 70, 'Cakes & Pastries'),
+(13, 'Croissant', 'Flaky buttery croissant', 140, 1, 'assets/imgs/menu/croissant.jpg', 1, 70, 'Cakes & Pastries'),
+(13, 'Veg Pasta', 'Creamy white sauce pasta', 220, 1, 'assets/imgs/menu/veg_pasta.jpg', 1, 71, 'Italian Specials'),
+(13, 'Brownie', 'Rich chocolate brownie', 150, 1, 'assets/imgs/menu/brownie.jpg', 1, 72, 'Desserts'),
+(13, 'Cheesecake Slice', 'Soft cheesecake slice', 190, 1, 'assets/imgs/menu/cheesecake_slice.jpg', 1, 72, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(14, 'Choco Lava Cake', 'Warm chocolate cake with molten centre', 180, 1, 'assets/imgs/menu/lava_cake.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Red Velvet Pastry', 'Soft red velvet pastry with cream frosting', 160, 1, 'assets/imgs/menu/red_velvet_pastry.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Black Forest Pastry', 'Chocolate pastry with cream and cherries', 150, 1, 'assets/imgs/menu/black_forest_pastry.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Belgian Waffle', 'Crispy waffle topped with chocolate sauce', 210, 1, 'assets/imgs/menu/belgian_waffle.jpg', 1, 75, 'Desserts'),
+(14, 'Blueberry Cheesecake', 'Smooth cheesecake with blueberry topping', 220, 1, 'assets/imgs/menu/blueberry_cheesecake.jpg', 1, 75, 'Desserts'),
+(14, 'Brownie Sundae', 'Brownie served with ice cream', 210, 1, 'assets/imgs/menu/brownie_sundae.jpg', 1, 75, 'Desserts'),
+(14, 'Chocolate Donut', 'Soft donut glazed with chocolate', 110, 1, 'assets/imgs/menu/chocolate_donut.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Strawberry Pastry', 'Creamy pastry with strawberry flavour', 150, 1, 'assets/imgs/menu/strawberry_pastry.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Vanilla Cupcake', 'Soft vanilla cupcake with frosting', 100, 1, 'assets/imgs/menu/vanilla_cupcake.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Chocolate Cupcake', 'Chocolate cupcake topped with cream', 110, 1, 'assets/imgs/menu/chocolate_cupcake.jpg', 1, 74, 'Cakes & Pastries'),
+(14, 'Ice Cream Trio', 'Three scoops of assorted ice cream', 180, 1, 'assets/imgs/menu/icecream_trio.jpg', 1, 75, 'Desserts'),
+(14, 'Oreo Milkshake', 'Creamy Oreo shake', 170, 1, 'assets/imgs/menu/oreo_shake.jpg', 1, 76, 'Beverages'),
+(14, 'Cold Coffee', 'Cold coffee with ice cream', 160, 1, 'assets/imgs/menu/cold_coffee.jpg', 1, 76, 'Beverages'),
+(14, 'Mango Shake', 'Refreshing mango milkshake', 160, 1, 'assets/imgs/menu/mango_shake.jpg', 1, 76, 'Beverages'),
+(14, 'Chocolate Mousse', 'Smooth chocolate mousse dessert', 180, 1, 'assets/imgs/menu/chocolate_mousse.jpg', 1, 75, 'Desserts');
+
+INSERT INTO menu_items (restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category) VALUES
+(15, 'BBQ Wings', 'Smoky grilled chicken wings', 260, 1, 'assets/imgs/menu/bbq_wings.jpg', 0, 77, 'Starters'),
+(15, 'Paneer Tikka', 'Grilled paneer cubes with spices', 220, 1, 'assets/imgs/menu/paneer_tikka.jpg', 1, 77, 'Starters'),
+(15, 'Chicken Tikka', 'Juicy grilled chicken tikka', 280, 1, 'assets/imgs/menu/chicken_tikka.jpg', 0, 77, 'Starters'),
+(15, 'Peri Peri Chicken Platter', 'Grilled peri peri chicken with sides', 420, 1, 'assets/imgs/menu/peri_peri_chicken.jpg', 0, 82, 'BBQ Platters'),
+(15, 'Smoked Paneer Platter', 'Char-grilled paneer platter', 340, 1, 'assets/imgs/menu/smoked_paneer.jpg', 1, 82, 'BBQ Platters'),
+(15, 'BBQ Chicken Platter', 'Smoky BBQ chicken platter', 430, 1, 'assets/imgs/menu/bbq_chicken_platter.jpg', 0, 82, 'BBQ Platters'),
+(15, 'Grilled Fish Platter', 'Grilled fish served with sides', 450, 1, 'assets/imgs/menu/grilled_fish_platter.jpg', 0, 82, 'BBQ Platters'),
+(15, 'Veg Grill Platter', 'Assorted grilled vegetables and paneer', 320, 1, 'assets/imgs/menu/veg_grill_platter.jpg', 1, 82, 'BBQ Platters'),
+(15, 'Chicken Sausage Grill', 'Grilled sausages with seasoning', 360, 1, 'assets/imgs/menu/sausage_grill.jpg', 0, 82, 'BBQ Platters'),
+(15, 'Butter Chicken', 'Creamy butter chicken curry', 320, 1, 'assets/imgs/menu/butter_chicken.jpg', 0, 78, 'Indian Mains'),
+(15, 'Paneer Butter Masala', 'Paneer in rich tomato gravy', 260, 1, 'assets/imgs/menu/paneer_butter_masala.jpg', 1, 78, 'Indian Mains'),
+(15, 'Butter Naan', 'Soft butter naan', 50, 1, 'assets/imgs/menu/butter_naan.jpg', 1, 79, 'Indian Breads'),
+(15, 'Fresh Lime Juice', 'Freshly squeezed lime juice', 90, 1, 'assets/imgs/menu/fresh_lime.jpg', 1, 80, 'Beverages'),
+(15, 'Chocolate Shake', 'Rich chocolate shake', 180, 1, 'assets/imgs/menu/chocolate_shake.jpg', 1, 80, 'Beverages'),
+(15, 'Gulab Jamun', 'Soft Indian sweet dessert', 120, 1, 'assets/imgs/menu/gulab_jamun.jpg', 1, 81, 'Desserts');
+
+INSERT INTO categories (restaurant_id, name) VALUES
+( 9, 'Desserts'),
+( 9, 'Beverages'),
+( 9, 'Starters'),
+( 9, 'Rice & Noodles'),
+(9, 'Chinese Mains'),
+( 10, 'Desserts'),
+( 10, 'Beverages'),
+( 10, 'Starters'),
+(10, 'Italian Specials'),
+ ( 10, 'Pizzas'), 
+ ( 11, 'Desserts'),
+( 11, 'Beverages'),
+( 11, 'Starters'),
+( 11, 'Indian Breads'),
+( 11, 'Indian Mains'),
+ (11, 'Biryani & Combos'),
+  ( 12, 'Desserts'),
+( 12, 'Beverages'),
+( 12, 'Starters'),
+( 12, 'Indian Breads'),
+(12, 'Rice & Noodles'),
+ (12, 'Biryani & Combos'),
+ ( 12, 'Seafood Mains'),
+ (13, 'Starters'),
+ (13,'Cakes & Pastries'),
+ (13,'Italian Specials'),
+ (13,'Desserts'),
+ (13, 'Coffee & Shakes'),
+ (14, 'Cakes & Pastries'), 
+ ( 14, 'Desserts'),
+( 14, 'Beverages'),
+(15, 'Starters'),
+(15, 'Indian Mains'),
+(15, 'Indian Breads'),
+(15, 'Beverages'),
+(15,'Desserts'),
+( 15, 'BBQ Platters');
+
+desc menu_items;
+
+INSERT INTO restaurants (restaurant_id, name, phone_number, location, is_active, rating, is_pure_veg) VALUES
+(2, 'Pasta Heaven', '9876543211', 'Anna Nagar, Chennai', 1, 4.2, 0),
+(3, 'Burger Hub', '9876543212', 'Velachery, Chennai', 1, 4.3, 0),
+(4, 'Sushi World', '9876543213', 'Adyar, Chennai', 1, 4.6, 0),
+(5, 'Taco Town', '9876543214', 'Nungambakkam, Chennai', 1, 4.1, 0),
+(6, 'Amma Kadai', '9876543215', 'Mylapore, Chennai', 1, 4.4, 1),
+(7, 'Veggie Delight', '9876543216', 'Besant Nagar, Chennai', 1, 4.0, 1),
+(8, 'Steak House', '9876543217', 'OMR, Chennai', 1, 4.7, 0),
+(9, 'Noodle Nook', '9876543218', 'Tambaram, Chennai', 1, 4.2, 1),
+(10, 'Pizza Planet', '9876543219', 'Guindy, Chennai', 1, 4.5, 0),
+(11, 'Biryani Bowl', '9876543220', 'Royapettah, Chennai', 1, 4.6, 0),
+(12, 'Seafood Shack', '9876543221', 'Thiruvanmiyur, Chennai', 1, 4.3, 0),
+(13, 'Cafe Mocha', '9876543222', 'Alwarpet, Chennai', 1, 4.1, 1),
+(14, 'Dessert Dreams', '9876543223', 'Kilpauk, Chennai', 1, 4.8, 1),
+(15, 'Grill Master', '9876543224', 'Porur, Chennai', 1, 4.4, 0);
+
+INSERT INTO Menu_Items (restaurant_id, item_name, description, price, is_available)
+VALUES
+(1, 'Paneer Butter Masala', 'Rich tomato gravy with paneer', 220, TRUE),
+(1, 'Chicken Curry', 'Spicy South Indian chicken curry', 260, TRUE),
+(1, 'Butter Naan', 'Soft butter naan', 40, TRUE),
+(1, 'Garlic Naan', 'Garlic flavored naan', 40, TRUE),
+(1, 'Sweet Lassi', 'Refreshing yogurt drink', 70, TRUE);
+
+SELECT * FROM Menu_Items WHERE restaurant_id = 1;
+
+select * from categories;
+
+desc categories;
+
+INSERT INTO categories (restaurant_id, name) VALUES
+(2, 'pizza'),
+(2, 'pasta'),
+(2, 'beverages'),
+(2, 'desserts');
+
+INSERT INTO menu_items
+(restaurant_id, item_name, description, price, is_available, image_url, is_veg, category_id, category)
+VALUES
+
+(1,'Paneer Tikka','Grilled paneer cubes with spices',220,1,'paneer_tikka.jpg',1,1,'Starters' ),
+(1,'Veg Spring Roll','Crispy rolls with vegetable filling',160,1,'spring_roll.jpg',1,1,'Starters'),
+(1,'Chicken Kebab','Chicken rolled into a kebab with spices',250,1,'chicken_kebab.jpg',0,1,'Starters' ),
+
+(1,'Veg Biryani','Fragrant basmati rice with vegetables',180,1,'veg_biryani.jpg',1,3,'Rice & Noodles'),
+(1,'Paneer Biryani','Biryani cooked with paneer cubes',220,1,'paneer_biryani.jpg',1,3,'Rice & Noodles'),
+
+(1,'Fresh Lime Soda','Refreshing lime soda',70,1,'lime_soda.jpg',1,5,'Beverages'),
+(1,'Cold Coffee','Chilled coffee with milk',110,1,'cold_coffee.jpg',1,5,'Beverages'),
+
+(1,'Gulab Jamun','Soft fried sweet dumplings',80,1,'gulab_jamun.jpg',1,6,'Desserts'),
+(1,'Rasgulla','Spongy sweet balls in syrup',90,1,'rasgulla.jpg',1,6,'Desserts');
+
+INSERT INTO Delivery_Partners (name, phone_number, vehicle_type)
+VALUES ('Rahul', '9123456789', 'Bike');
+
+INSERT INTO Restaurants (name, phone_number, location, is_active, rating)
+VALUES 
+('Spice Villa', '9876543210', 'Anna Nagar', TRUE, 4.5),
+('Pizza Planet', '9876543211', 'T Nagar', TRUE, 4.2);
+
+INSERT INTO Menu_Items (restaurant_id, item_name, description, price, is_available)
+VALUES
+(1, 'Paneer Butter Masala', 'Creamy paneer curry', 220, TRUE),
+(1, 'Butter Naan', 'Soft naan with butter', 40, TRUE),
+(2, 'Farmhouse Pizza', 'Veg loaded pizza', 300, TRUE),
+(2, 'Peppy Pepperoni Pizza', 'Spicy pepperoni pizza', 450, TRUE);
+
+SELECT * FROM Orders;
+SELECT * FROM Menu_Items;
+
+ALTER TABLE Menu_Items ADD COLUMN image_url VARCHAR(255);
+
+UPDATE Menu_Items  SET image_url = 'assets/imgs/r1i1.jpg' WHERE item_name = 'Paneer Butter Masala';
+
+UPDATE Menu_Items  SET category_id = 2 WHERE item_name = 'Dal Fry';
+
+UPDATE Menu_Items  SET is_veg= 1 WHERE item_name = 'Garlic Naan';
+
+
+select * from  categories;
+
+
+
+desc Menu_Items;
+
+select * from restaurants;
+
+INSERT INTO categories (restaurant_id, name, description, display_order)
+VALUES
+(1,'Starters','Appetizers to begin your meal',1),
+(1,'Indian Mains','Indian Mains',2),
+(1,'Rice & Noodles','Aromatic rice & noodle dishes',3),
+(1,'Indian Breads','North Indian breads',4),
+(1,'Beverages','Drinks and coolers',5),
+(1,'Desserts','Sweet dishes',6);
+
+drop table menu_items;
+
+select * from categories;
+
+select * from menu_items;
+
+UPDATE Menu_Items set category_id = 2 WHERE item_name = 'Paneer Butter Masala';
+
+
+DELETE FROM menu_items;
+
+
+INSERT INTO Menu_Items (restaurant_id, item_name, description, price, is_available)
+VALUES
+(1, 'Paneer Butter Masala', 'Creamy paneer curry', 220, TRUE),
+(1, 'Butter Naan', 'Soft naan with butter', 40, TRUE),
+(2, 'Farmhouse Pizza', 'Veg loaded pizza', 300, TRUE),
+(2, 'Peppy Pepperoni Pizza', 'Spicy pepperoni pizza', 450, TRUE);
+
+SHOW PROCESSLIST;
+
+SET autocommit = 1;
+COMMIT;
+
+DESCRIBE menu_items;
+
+UPDATE Menu_items
+SET image_url = 'r1i1.jpg'
+WHERE item_id = 1;
+
+
+
+UPDATE Menu_items
+SET is_veg = 'No'
+WHERE item_id = 1;
+
+Alter table  Menu_Items drop column is_veg;
+
+ALTER TABLE Menu_Items ADD COLUMN is_veg boolean;
+
+UPDATE Menu_items
+SET is_veg = 1
+WHERE item_id = 1;
+
+show tables;
+
+DESCRIBE TABLE orders;
+
+use ahaar;
+
+SELECT * FROM Menu_Items;
+
+delete from Menu_Items where item_id=7;
+
+INSERT INTO Menu_Items (restaurant_id, item_name, description, price, is_available)
+VALUES
+(1, 'Paneer Butter Masala', 'Creamy paneer curry', 220, TRUE),
+(1, 'Butter Naan', 'Soft naan with butter', 40, TRUE),
+(2, 'Farmhouse Pizza', 'Veg loaded pizza', 300, TRUE),
+(2, 'Peppy Pepperoni Pizza', 'Spicy pepperoni pizza', 450, TRUE);
+
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurant_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    display_order INT DEFAULT 0,
+
+    FOREIGN KEY (restaurant_id)
+        REFERENCES Restaurants(restaurant_id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE menu_items
+ADD COLUMN category_id INT;
+
+ALTER TABLE menu_items
+ADD CONSTRAINT fk_menu_category
+FOREIGN KEY (category_id)
+REFERENCES Categories(category_id)
+ON DELETE CASCADE;
+
+SHOW TABLES;
+
+ALTER TABLE Orders
+ADD COLUMN decline_reason VARCHAR(255) DEFAULT NULL,
+ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE Delivery_Assignments
+ADD COLUMN decline_reason VARCHAR(255) DEFAULT NULL,
+ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+select * from users;
+
+ALTER TABLE Users
+    ADD COLUMN address_line1 VARCHAR(255) NULL,
+    ADD COLUMN address_line2 VARCHAR(255) NULL,
+    ADD COLUMN city VARCHAR(100) NULL,
+    ADD COLUMN state VARCHAR(100) NULL,
+    ADD COLUMN pincode VARCHAR(20) NULL,
+    ADD COLUMN delivery_instructions TEXT NULL;
+    
+    CREATE TABLE Cart_Items (
+    cart_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    restaurant_id INT NOT NULL,
+    item_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurants(restaurant_id),
+    FOREIGN KEY (item_id) REFERENCES Menu_Items(item_id)
+);
+
+UPDATE Users
+SET
+  address_line1 = 'Anna Nagar',
+  address_line2 = 'Near XYZ',
+  city = 'Chennai',
+  state = 'TN',
+  pincode = '600040',
+  delivery_instructions = 'Call on arrival'
+WHERE phone_number = '9876543210';
